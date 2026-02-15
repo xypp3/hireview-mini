@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type Question = {
@@ -8,18 +8,35 @@ type Question = {
   text: string;
 };
 
+const loadQuestionsFromStorage = (): Question[] => {
+  if (typeof window === "undefined") return [];
+  const stored = sessionStorage.getItem("questions");
+  if (stored) {
+    try {
+      return JSON.parse(stored);
+    } catch (e) {
+      console.error("Error parsing questions:", e);
+      return [];
+    }
+  }
+  return [];
+};
+
 export default function QuestionsPage() {
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [questions, setQuestions] = useState<Question[]>(loadQuestionsFromStorage);
   const [input, setInput] = useState("");
   const router = useRouter();
+  const isInitialMount = useRef(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem("questions");
-    if (stored) setQuestions(JSON.parse(stored));
+    isInitialMount.current = false;
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("questions", JSON.stringify(questions));
+    // Don't save on initial mount, only when questions actually change
+    if (!isInitialMount.current) {
+      sessionStorage.setItem("questions", JSON.stringify(questions));
+    }
   }, [questions]);
 
   const addQuestion = () => {
@@ -41,7 +58,7 @@ export default function QuestionsPage() {
 
       <div className="flex gap-2 mb-6">
         <input
-          className="flex-1 p-2 rounded text-black"
+          className="flex-1 p-2 rounded text-white"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Enter interview question"

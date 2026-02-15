@@ -12,7 +12,7 @@ export default function MockPage() {
   const [questions, setQuestions] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [stage, setStage] = useState<Stage>("ready");
-  const [prepTime, setPrepTime] = useState(51);
+  const [prepTime, setPrepTime] = useState(5);
   const [recordTime, setRecordTime] = useState(90);
   const [videoURL, setVideoURL] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -20,12 +20,33 @@ export default function MockPage() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("questions");
+  const loadQuestions = () => {
+    const stored = sessionStorage.getItem("questions");
     if (stored) {
-      const parsed = JSON.parse(stored);
-      setQuestions(parsed.map((q: any) => q.text));
+      try {
+        const parsed = JSON.parse(stored);
+        setQuestions(parsed.map((q: any) => q.text));
+      } catch (e) {
+        console.error("Error parsing questions:", e);
+        setQuestions([]);
+      }
+    } else {
+      setQuestions([]);
     }
+  };
+
+  useEffect(() => {
+    loadQuestions();
+
+    // Listen for storage changes (when questions are updated in another tab/page)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "questions") {
+        loadQuestions();
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   useEffect(() => {
