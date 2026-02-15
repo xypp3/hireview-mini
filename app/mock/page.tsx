@@ -21,7 +21,7 @@ export default function MockPage() {
   const chunksRef = useRef<Blob[]>([]);
 
   const loadQuestions = () => {
-    const stored = sessionStorage.getItem("questions");
+    const stored = localStorage.getItem("questions");
     if (stored) {
       try {
         const parsed = JSON.parse(stored);

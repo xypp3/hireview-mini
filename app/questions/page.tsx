@@ -10,7 +10,7 @@ type Question = {
 
 const loadQuestionsFromStorage = (): Question[] => {
   if (typeof window === "undefined") return [];
-  const stored = sessionStorage.getItem("questions");
+  const stored = localStorage.getItem("questions");
   if (stored) {
     try {
       return JSON.parse(stored);
@@ -35,7 +35,7 @@ export default function QuestionsPage() {
   useEffect(() => {
     // Don't save on initial mount, only when questions actually change
     if (!isInitialMount.current) {
-      sessionStorage.setItem("questions", JSON.stringify(questions));
+      localStorage.setItem("questions", JSON.stringify(questions));
     }
   }, [questions]);
 
