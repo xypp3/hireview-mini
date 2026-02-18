@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type Stage = "ready" | "recording" | "review" | "complete" | "error";
+const PREP_TIME = 100;
+const RECORD_TIME = 120;
 
 export default function MockPage() {
   const router = useRouter();
@@ -12,8 +14,8 @@ export default function MockPage() {
   const [questions, setQuestions] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [stage, setStage] = useState<Stage>("ready");
-  const [prepTime, setPrepTime] = useState(5);
-  const [recordTime, setRecordTime] = useState(90);
+  const [prepTime, setPrepTime] = useState(PREP_TIME);
+  const [recordTime, setRecordTime] = useState(RECORD_TIME);
   const [videoURL, setVideoURL] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -138,8 +140,8 @@ export default function MockPage() {
       return;
     }
     setCurrentIndex(currentIndex + 1);
-    setPrepTime(30);
-    setRecordTime(90);
+    setPrepTime(PREP_TIME);
+    setRecordTime(RECORD_TIME);
     setVideoURL(null);
     setStage("ready");
   };
@@ -195,8 +197,8 @@ export default function MockPage() {
           <div className="flex gap-4">
             <button
               onClick={() => {
-                setPrepTime(30);
-                setRecordTime(90);
+                setPrepTime(PREP_TIME);
+                setRecordTime(RECORD_TIME);
                 setVideoURL(null);
                 setStage("ready");
               }}
@@ -239,8 +241,8 @@ export default function MockPage() {
           </p>
           <button
             onClick={() => {
-              setPrepTime(30);
-              setRecordTime(90);
+              setPrepTime(PREP_TIME);
+              setRecordTime(RECORD_TIME);
               setError(null);
               setStage("ready");
             }}
