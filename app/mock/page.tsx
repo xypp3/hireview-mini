@@ -4,8 +4,21 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type Stage = "ready" | "recording" | "review" | "complete" | "error";
-const PREP_TIME = 100;
-const RECORD_TIME = 120;
+
+const DEFAULT_PREP_TIME = 100;
+const DEFAULT_RECORD_TIME = 140;
+
+const loadTimeFromStorage = (key: string, defaultValue: number): number => {
+  if (typeof window === "undefined") return defaultValue;
+  const stored = localStorage.getItem(key);
+  if (stored) {
+    const parsed = parseInt(stored, 10);
+    if (!isNaN(parsed) && parsed > 0) {
+      return parsed;
+    }
+  }
+  return defaultValue;
+};
 
 export default function MockPage() {
   const router = useRouter();
@@ -14,8 +27,8 @@ export default function MockPage() {
   const [questions, setQuestions] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [stage, setStage] = useState<Stage>("ready");
-  const [prepTime, setPrepTime] = useState(PREP_TIME);
-  const [recordTime, setRecordTime] = useState(RECORD_TIME);
+  const [prepTime, setPrepTime] = useState(() => loadTimeFromStorage("prepTime", DEFAULT_PREP_TIME));
+  const [recordTime, setRecordTime] = useState(() => loadTimeFromStorage("recordTime", DEFAULT_RECORD_TIME));
   const [videoURL, setVideoURL] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -134,14 +147,18 @@ export default function MockPage() {
     tracks.forEach((track) => track.stop());
   };
 
+  const resetTimes = () => {
+    setPrepTime(loadTimeFromStorage("prepTime", DEFAULT_PREP_TIME));
+    setRecordTime(loadTimeFromStorage("recordTime", DEFAULT_RECORD_TIME));
+  };
+
   const nextQuestion = () => {
     if (currentIndex + 1 >= questions.length) {
       setStage("complete");
       return;
     }
     setCurrentIndex(currentIndex + 1);
-    setPrepTime(PREP_TIME);
-    setRecordTime(RECORD_TIME);
+    resetTimes();
     setVideoURL(null);
     setStage("ready");
   };
@@ -197,8 +214,7 @@ export default function MockPage() {
           <div className="flex gap-4">
             <button
               onClick={() => {
-                setPrepTime(PREP_TIME);
-                setRecordTime(RECORD_TIME);
+                resetTimes();
                 setVideoURL(null);
                 setStage("ready");
               }}
@@ -241,8 +257,7 @@ export default function MockPage() {
           </p>
           <button
             onClick={() => {
-              setPrepTime(PREP_TIME);
-              setRecordTime(RECORD_TIME);
+              resetTimes();
               setError(null);
               setStage("ready");
             }}
